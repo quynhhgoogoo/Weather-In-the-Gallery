@@ -3,10 +3,18 @@ import random
 import time
 import os
 from datetime import datetime
+#from data_notify import *
 
 from flask import Flask, Response, render_template,request,redirect,url_for
 application = Flask(__name__)
 random.seed()  # Initialize the random number generator
+
+# Define email content for notification
+message = """From: Weather in the Gallery team <weather.in.gallery@gmail.com>
+To: To Person <luongdiemquynh1998@gmail.com>
+Subject: Warning: Abnormal values on Sensor
+There are some abnormal values observed from sensor. Please check it out carefully!
+"""
 
 
 @application.route('/')
@@ -54,3 +62,4 @@ def hudmiditydata():
 
 if __name__ == '__main__':
     application.run(host = "0.0.0.0", debug=True, threaded=True)
+    

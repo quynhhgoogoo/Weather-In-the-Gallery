@@ -22,24 +22,22 @@ There are some abnormal values observed from sensor. Please check it out careful
 """
 
 
-def parse_info():
+def parse_info(message):
     '''Parse sensor values from arduino and save it'''
     while True:
         # Download from URL and decode as UTF-8 text.
-        arduino_url = 'http://192.168.43.138/'
+        arduino_url = 'http://192.168.0.12/'
         with urlopen( arduino_url) as webpage:
+            print("Crawling data from arduino server")
             content = webpage.read().decode()
 
         # Save to file.
         with open( 'output.html', 'w' ) as output:
+            print("Writing to file output")
             output.write( content )
         
-        time.sleep(TIME)
 
-
-def manipulate_data(message):
-    ''' Get data parsed from web server into JSON format. Check if data is out of range and send notification to user '''
-    while True:
+        # Get data parsed from web server into JSON format. Check if data is out of range and send notification to user '''
         # Open the parsed html file
         f = open("output.html", "r")
         content = f.read()
@@ -52,7 +50,8 @@ def manipulate_data(message):
         print(sensor_values)
 
         # Convert data into JSON format
-        sensor_data = {"Temperature" : sensor_values[0], "Hudmidity": sensor_values[1], "AcceleratorX": sensor_values[2], "AcceleratorY": sensor_values[3], "AcceleratorZ": sensor_values[4] }
+        # sensor_data = {"Temperature" : sensor_values[0], "Hudmidity": sensor_values[1], "AcceleratorX": sensor_values[2], "AcceleratorY": sensor_values[3], "AcceleratorZ": sensor_values[4] }
+        sensor_data = {"Temperature" : sensor_values[0], "Hudmidity": sensor_values[1], "AcceleratorX": sensor_values[2], "AcceleratorY": sensor_values[0], "AcceleratorZ": sensor_values[1] }
         json_format.append(sensor_data)
         print(json_format)
 
@@ -63,15 +62,16 @@ def manipulate_data(message):
         # Check if sensor values is abnormal and send a notify email to user
         if (sensor_values[0] < TEMPERATURE_MIN) or (sensor_values[0] > TEMPERATURE_MAX):
             message += """Current temperature is out of range """ + str(sensor_values[0]) + "\n"
-        if (sensor_values[1] < HUDMIDITY_MIN) or (sensor_values[1] > HUDMIDITY_MAX):
+        '''if (sensor_values[1] < HUDMIDITY_MIN) or (sensor_values[1] > HUDMIDITY_MAX):
             message += """Current hudmidy is out of range """ + str(sensor_values[1]) + "\n"
         if (sensor_values[2] < ACCELERATOR_X) or (sensor_values[3] > ACCELERATOR_Y) or (sensor_values[4] > ACCELERATOR_Z):
             message += """Current accelerator is too low """ + str(sensor_values[2]) + "," + str(sensor_values[3]) + ","  + str(sensor_values[4]) + "\n"
-
+        '''
+        
         if len(message) != 0:
             print(message)
         #    send_email(message)
 
         time.sleep(TIME)
 
-#manipulate_data(message)
+parse_info(message)
