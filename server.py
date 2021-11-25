@@ -1,77 +1,56 @@
-from urllib.request import urlopen
-from bs4 import BeautifulSoup
-from send_email import *
-import time
 import json
+import random
+import time
+import os
+from datetime import datetime
 
-# Define range of sensor's value in normal cases
-TEMPERATURE_MIN, TEMPERATURE_MAX = 15, 26
-HUDMIDITY_MIN, HUDMIDITY_MAX = 40, 50
-ACCELERATOR_X, ACCELERATOR_Y, ACCELERATOR_Z = 1, 1, 1
-
-# Define the frequency for update info from Arduino server
-TIME = 10
-
-json_format = []
-
-# Define email content for notification
-message = """From: Weather in the Gallery team <weather.in.gallery@gmail.com>
-To: To Person <luongdiemquynh1998@gmail.com>
-Subject: Warning: Abnormal values on Sensor
-There are some abnormal values observed from sensor. Please check it out carefully!
-"""
+from flask import Flask, Response, render_template,request,redirect,url_for
+application = Flask(__name__)
+random.seed()  # Initialize the random number generator
 
 
-def parse_info():
-    '''Parse sensor values from arduino and save it'''
-    while True:
-        # Download from URL and decode as UTF-8 text.
-        arduino_url = 'http://192.168.43.138/'
-        with urlopen( arduino_url) as webpage:
-            content = webpage.read().decode()
+@application.route('/')
+def landing():
+    return render_template('temperature.html')
 
-        # Save to file.
-        with open( 'output.html', 'w' ) as output:
-            output.write( content )
-        
-        time.sleep(TIME)
+@application.route('/temperature')
+def temperature():
+    return render_template('temperature.html')
+
+@application.route('/hudmidity')
+def hudmidity():
+    return render_template('hudmidity.html')
 
 
-def manipulate_data(message):
-    ''' Get data parsed from web server into JSON format. Check if data is out of range and send notification to user '''
-    while True:
-        # Open the parsed html file
-        f = open("output.html", "r")
-        content = f.read()
-        content_list = content.splitlines()
-        f.close()
+@application.route('/temperature-data',methods=['GET','POST'])            
+def userdata():
+    def update_json_data():                                         
+            data=[]
+            with open("data.json", "r") as sensor_data:
+                sensor_data = json.load(sensor_data)
+            for temperature in sensor_data:
+                temperature = temperature["Temperature"]
+                temperature_data = json.dumps(
+                {'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'value': temperature})
+            yield f"data:{temperature_data}\n\n"
+            time.sleep(1)
+    return Response(update_json_data(), mimetype='text/event-stream')
 
-        # Save sensor data under a list of float format [temperature, hudmidity, acceleratorX, acceleratorY, acceleratorZ]
-        sensor_values = []
-        sensor_values += [float(i) for i in content_list[0][:-1].split(",")]
-        print(sensor_values)
 
-        # Convert data into JSON format
-        sensor_data = {"Temperature" : sensor_values[0], "Hudmidity": sensor_values[1], "AcceleratorX": sensor_values[2], "AcceleratorY": sensor_values[3], "AcceleratorX": sensor_values[4] }
-        json_format.append(sensor_data)
-        print(json_format)
+@application.route('/hudmidity-data',methods=['GET','POST'])            
+def hudmiditydata():
+    def update_json_data():                                         
+            data=[]
+            with open("data.json", "r") as sensor_data:
+                sensor_data = json.load(sensor_data)
+            for hudmidity in sensor_data:
+                hudmidity = hudmidity["Hudmidity"]
+                hudmidity_data = json.dumps(
+                {'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'value': hudmidity})
+            yield f"data:{hudmidity_data}\n\n"
+            time.sleep(1)
+    return Response(update_json_data(), mimetype='text/event-stream')
 
-        # Write data into json file
-        with open("data.json", "w") as f:
-            f.write(json.dumps(json_format))
 
-        # Check if sensor values is abnormal and send a notify email to user
-        if (sensor_values[0] < TEMPERATURE_MIN) or (sensor_values[0] > TEMPERATURE_MAX):
-            message += """Current temperature is out of range """ + str(sensor_values[0]) + "\n"
-        if (sensor_values[1] < HUDMIDITY_MIN) or (sensor_values[1] > HUDMIDITY_MAX):
-            message += """Current hudmidy is out of range """ + str(sensor_values[1]) + "\n"
-        if (sensor_values[2] < ACCELERATOR_X) or (sensor_values[3] > ACCELERATOR_Y) or (sensor_values[4] > ACCELERATOR_Z):
-            message += """Current accelerator is too low """ + str(sensor_values[2]) + "," + str(sensor_values[3]) + ","  + str(sensor_values[4]) + "\n"
-
-        if len(message) != 0:
-            print(message)
-        #    send_email(message)
-
-        time.sleep(TIME)
-
-manipulate_data(message)
+if __name__ == '__main__':
+    application.run(host = "0.0.0.0", debug=True, threaded=True)
