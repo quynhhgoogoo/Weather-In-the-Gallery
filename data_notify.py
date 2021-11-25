@@ -59,18 +59,22 @@ def parse_info(message):
         with open("data.json", "w") as f:
             f.write(json.dumps(json_format))
 
+        text_message = ""
+
         # Check if sensor values is abnormal and send a notify email to user
         if (sensor_values[0] < TEMPERATURE_MIN) or (sensor_values[0] > TEMPERATURE_MAX):
-            message += """Current temperature is out of range """ + str(sensor_values[0]) + "\n"
-        '''if (sensor_values[1] < HUDMIDITY_MIN) or (sensor_values[1] > HUDMIDITY_MAX):
-            message += """Current hudmidy is out of range """ + str(sensor_values[1]) + "\n"
-        if (sensor_values[2] < ACCELERATOR_X) or (sensor_values[3] > ACCELERATOR_Y) or (sensor_values[4] > ACCELERATOR_Z):
-            message += """Current accelerator is too low """ + str(sensor_values[2]) + "," + str(sensor_values[3]) + ","  + str(sensor_values[4]) + "\n"
-        '''
+            text_message += """Current temperature is out of range """ + str(sensor_values[0]) + "\n"
+        if (sensor_values[1] < HUDMIDITY_MIN) or (sensor_values[1] > HUDMIDITY_MAX):
+            text_message += """Current hudmidy is out of range """ + str(sensor_values[1]) + "\n"
+        #if (sensor_values[2] < ACCELERATOR_X) or (sensor_values[3] > ACCELERATOR_Y) or (sensor_values[4] > ACCELERATOR_Z):
+        #    text_message += """Current accelerator is too low """ + str(sensor_values[2]) + "," + str(sensor_values[3]) + ","  + str(sensor_values[4]) + "\n"
         
-        if len(message) != 0:
+        message += text_message
+
+
+        if len(text_message) != 0:
             print(message)
-        #    send_email(message)
+            send_email(message)
 
         time.sleep(TIME)
 

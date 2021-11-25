@@ -79,7 +79,7 @@
             };
             const context = document.getElementById('canvas').getContext('2d');
             const lineChart = new Chart(context, config);
-            const source = new EventSource("/temperature");
+            const source = new EventSource("/temperature-data");
             source.onmessage = function(event) {
                 const data = JSON.parse(event.data);
                 if (config.data.labels.length === 20) {
