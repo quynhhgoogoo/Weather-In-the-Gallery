@@ -66,8 +66,8 @@ def parse_info(message):
             text_message += """Current temperature is out of range """ + str(sensor_values[0]) + "\n"
         if (sensor_values[1] < HUDMIDITY_MIN) or (sensor_values[1] > HUDMIDITY_MAX):
             text_message += """Current hudmidy is out of range """ + str(sensor_values[1]) + "\n"
-        #if (sensor_values[2] < ACCELERATOR_X) or (sensor_values[3] > ACCELERATOR_Y) or (sensor_values[4] > ACCELERATOR_Z):
-        #    text_message += """Current accelerator is too low """ + str(sensor_values[2]) + "," + str(sensor_values[3]) + ","  + str(sensor_values[4]) + "\n"
+        if int(sensor_values[2]) == 1:
+            text_message += """ Abnormal activities detected! """
         
         message += text_message
 
