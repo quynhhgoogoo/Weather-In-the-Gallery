@@ -26,7 +26,7 @@ def parse_info(message):
     '''Parse sensor values from arduino and save it'''
     while True:
         # Download from URL and decode as UTF-8 text.
-        arduino_url = 'http://192.168.0.12/'
+        '''arduino_url = 'http://192.168.43.138/'
         with urlopen( arduino_url) as webpage:
             print("Crawling data from arduino server")
             content = webpage.read().decode()
@@ -34,7 +34,7 @@ def parse_info(message):
         # Save to file.
         with open( 'output.html', 'w' ) as output:
             print("Writing to file output")
-            output.write( content )
+            output.write( content )'''
         
 
         # Get data parsed from web server into JSON format. Check if data is out of range and send notification to user '''
@@ -51,7 +51,7 @@ def parse_info(message):
 
         # Convert data into JSON format
         # sensor_data = {"Temperature" : sensor_values[0], "Hudmidity": sensor_values[1], "AcceleratorX": sensor_values[2], "AcceleratorY": sensor_values[3], "AcceleratorZ": sensor_values[4] }
-        sensor_data = {"Temperature" : sensor_values[0], "Hudmidity": sensor_values[1], "AcceleratorX": sensor_values[2], "AcceleratorY": sensor_values[0], "AcceleratorZ": sensor_values[1] }
+        sensor_data = {"Temperature" : sensor_values[0], "Hudmidity": sensor_values[1], "Accelerator": sensor_values[2] }
         json_format.append(sensor_data)
         print(json_format)
 

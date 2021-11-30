@@ -19,7 +19,7 @@ There are some abnormal values observed from sensor. Please check it out careful
 
 @application.route('/')
 def landing():
-    return render_template('temperature.html')
+    return render_template('index.html')
 
 @application.route('/temperature')
 def temperature():
